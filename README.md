@@ -197,6 +197,7 @@ assets/
 * [ ] Aba “Minhas compras” (histórico do consumidor)
 * [ ] Filtros e pesquisa no Mercado
 * [ ] Upload real de imagens (opcional) — câmera/galeria (Storage/alternativas)
+* [ ] Desenvolver um ERP para gerenciar os usuários e produtos
 
 ---
 
