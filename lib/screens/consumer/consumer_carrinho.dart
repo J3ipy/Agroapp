@@ -133,7 +133,7 @@ class ConsumerCarrinhoScreen extends StatelessWidget {
               const Text('Método de Pagamento', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
               ListTile(leading: const Icon(Icons.pix, color: const Color(0xFF32BCAD)), title: const Text('Pix'), onTap: () => _processarPedido(context, ctx, cart, 'Pix', enderecoFormatado)),
-              ListTile(leading: const Icon(Icons.credit_card, color: Colors.blue), title: const Text('Cartão de Crédito/Débito'), onTap: () => _processarPedido(context, ctx, cart, 'Cartão', enderecoFormatado)),
+              ListTile(leading: const Icon(Icons.credit_card, color: Colors.blue), title: const Text('Cartão de Crédito/Débito na Entrega'), onTap: () => _processarPedido(context, ctx, cart, 'Cartão', enderecoFormatado)),
               ListTile(leading: const Icon(Icons.request_page, color: Colors.black54), title: const Text('Dinheiro na Entrega'), onTap: () => _processarPedido(context, ctx, cart, 'Dinheiro', enderecoFormatado)),
             ],
           ),
@@ -215,7 +215,7 @@ class ConsumerCarrinhoScreen extends StatelessWidget {
       if (mainContext.mounted) {
         if (metodoPagamento == 'Pix') {
           // NAVEGA PARA A TELA DO QR CODE DO PIX
-          Navigator.push(mainContext, MaterialPageRoute(builder: (_) => PixScreen(pedidoId: pedidoRef.id, valorTotal: valorFinal)));
+          Navigator.push(mainContext, MaterialPageRoute(builder: (_) => PixScreen(pedidoId: pedidoRef.id, total: valorFinal)));
         } else {
           ScaffoldMessenger.of(mainContext).showSnackBar(const SnackBar(content: Text('Pedido realizado com sucesso!'), backgroundColor: Colors.green));
         }

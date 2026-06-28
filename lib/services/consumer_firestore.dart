@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/produto.dart';
 import 'auth_service.dart';
 
@@ -20,12 +21,20 @@ class ConsumerFirestoreService {
         .snapshots().map((snap) => snap.docs.map((d) => d.id).toList());
   }
 
-  Future<void> alternarFavorito(String produtoId, bool isFavorito) async {
-    final ref = _db.collection('users').doc(_uid).collection('favoritos').doc(produtoId);
-    if (isFavorito) {
-      await ref.delete();
+  Future<void> alternarFavorito(String produtoId, bool isFavAtual) async {
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+    final ref = FirebaseFirestore.instance.collection('users').doc(uid);
+
+    if (isFavAtual) {
+      // Se JÁ É favorito, nós REMOVEMOS da lista
+      await ref.update({
+        'favoritos': FieldValue.arrayRemove([produtoId])
+      });
     } else {
-      await ref.set({'produtoId': produtoId, 'dataSalvo': FieldValue.serverTimestamp()});
+      // Se NÃO É favorito, nós ADICIONAMOS na lista
+      await ref.update({
+        'favoritos': FieldValue.arrayUnion([produtoId])
+      });
     }
   }
 
