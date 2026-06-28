@@ -1,118 +1,82 @@
-# 🥬 HortApp — Agricultura Familiar Conectada
+# 🥬 AgroApp — Agricultura Familiar Conectada
 
 ![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)
 ![Dart](https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white)
 ![Android](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)
 ![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
+![Status](https://img.shields.io/badge/Status-MVP_Concluído-success)
 
-![Status](https://img.shields.io/badge/Status-Em_Desenvolvimento-yellow)
-
-O **HortApp** é um aplicativo mobile criado para **aproximar produtores da agricultura familiar** e **consumidores**, facilitando a comercialização direta de produtos **sem intermediários**.  
-O app permite que pequenos produtores gerenciem **catálogo, estoque, status do produto e vendas**, enquanto consumidores podem visualizar produtos ativos e realizar compras dentro do aplicativo.
+O **AgroApp** (anteriormente HortApp) é um aplicativo mobile criado para **aproximar produtores da agricultura familiar** e **consumidores**, facilitando a comercialização direta de produtos **sem intermediários**.  
+O app permite que pequenos produtores gerenciem seu catálogo, estoque e vendas, enquanto os consumidores podem explorar, filtrar, adicionar itens ao carrinho e realizar compras com geolocalização e geração de PIX. O projeto conta também com um **ERP de Backoffice** integrado para gestão administrativa.
 
 ---
 
-## ✨ Funcionalidades Implementadas (Atualizado)
+## ✨ Funcionalidades Implementadas
 
 ### 🔐 Autenticação e Perfis
-- Login e cadastro com validação simples.
-- Criação de perfil no Firestore (`users/{uid}`) com **role**:
-  - `vendedor`
-  - `consumidor`
+* **Login e Cadastro:** Validação segura de credenciais.
+* **Separação de Papéis (Roles):** Perfis distintos e rotas específicas para `vendedor` e `consumidor`.
 
-### 👨‍🌾 Vendedor
-- **📊 Home (Dashboard):**
-  - Lista de **“Mais vendidos”** (por vendedor).
-  - Card informativo (“Sabia que...”).
-- **📦 Produtos:**
-  - Listagem com foto (assets), preço, unidade e estoque.
-  - **Adicionar produto** com seleção de imagem via assets.
-  - **Editar produto** (preço e quantidade).
-  - **Ativar/Inativar** produto.
-  - **Excluir produto** com confirmação.
-- **📝 Histórico (Registros):**
-  - Vendas dos últimos 7 dias.
-  - Visão inteligente do estoque:
-    - 🟢 Bom estoque: > 3
-    - 🟠 Pouco estoque: ≤ 3
-    - 🔴 Produto em falta: 0
+### 👨‍🌾 Para o Produtor (Vendedor)
+* **Dashboard de Vendas:** Visão geral de "Mais vendidos" e cards educativos.
+* **Gestão de Catálogo (CRUD):** Adição, edição, ativação/inativação e exclusão de produtos.
+* **Upload em Nuvem:** Envio de fotos reais dos produtos através da API do Cloudinary.
+* **Controle de Estoque:** Dedução automática pós-compra e alertas visuais (Verde, Laranja e Vermelho para produtos esgotados).
+* **Exportação de Relatórios:** Geração de relatórios de vendas em CSV/Excel compartilháveis via WhatsApp ou e-mail.
 
-### 🧑‍💻 Consumidor
-- **🛒 Mercado:**
-  - Lista de **produtos ativos** (via `collectionGroup('produtos')`).
-  - Botão **Comprar** com fluxo de confirmação:
-    - quantidade
-    - método de pagamento (Pix/Cartão/Dinheiro)
-- **⭐ Destaques:**
-  - “Mais vendidos (global)” com base em `vendasMes`.
+### 🧑‍💻 Para o Consumidor
+* **Mercado Inteligente:** Listagem global de produtos ativos com barra de pesquisa.
+* **Filtros Avançados:** Filtragem por categorias (Frutas, Verduras, etc.) e faixa de preço.
+* **Carrinho de Compras:** Adição de itens e cálculo automático de subtotal.
+* **Checkout com Geolocalização:** Integração com Google Maps para marcação exata do local de entrega.
+* **Pagamentos:** Geração dinâmica de QR Code PIX (Copia e Cola) e simulação de Cartão/Dinheiro.
+* **Histórico e Avaliações:** Aba "Minhas Compras" com opção de classificar os produtos (1 a 5 estrelas).
 
-### 👤 Perfil (Compartilhado)
-- Visualização de dados do usuário (nome, email, role).
-- **Trocar foto de perfil** (seleção entre imagens do app via assets).
-- Ativar/desativar notificações (campo no Firestore).
-- Logout.
+### 👤 Perfil e Segurança (Compartilhado)
+* **Gestão de Perfil:** Visualização de dados e troca de foto de avatar.
+* **Notificações Push:** Alertas locais integrados via `flutter_local_notifications`.
+* **Adequação à LGPD:** Termos de privacidade e botão para **Exclusão Definitiva de Conta** e apagamento de dados do banco.
 
 ---
 
-## 🧠 Estrutura do Firestore (Atual)
+## 🖥️ ERP / Painel Administrativo (Backoffice)
+O AgroApp é suportado por um painel web construído em **Appsmith** (Low-Code), conectado diretamente ao Firebase.
+* **Gestão de Usuários:** Tabela com todos os produtores e consumidores cadastrados.
+* **Gestão de Pedidos:** Acompanhamento global das transações.
+* **Catálogo Global:** Leitura de produtos através de *Collection Group Queries*.
+* **Histórico Financeiro:** Visualização do histórico de vendas de forma unificada.
+
+---
+
+## 🧠 Estrutura do Banco de Dados (Firestore)
+
+A arquitetura foi desenhada com subcoleções para garantir segurança e isolamento de dados por usuário:
 
 ```text
-users/{uid}
-users/{uid}/produtos/{produtoId}
-users/{uid}/vendas/{vendaId}
-compras/{compraId}               # histórico global do consumidor (opcional, mas recomendado)
-````
+users/{uid}                              # Dados do perfil do usuário
+users/{uid}/produtos/{produtoId}         # Catálogo isolado do vendedor
+users/{uid}/vendas/{vendaId}             # Histórico de vendas do vendedor
+pedidos/{pedidoId}                       # Histórico global de compras (Consumidores)
 
-### Campos principais no produto
+```
 
-* `nome`, `preco`, `quantidade`, `unidade`, `imagemPath`, `ativo`
-* `vendasTotal`, `vendasMes`, `vendasSemana`
-* `createdAt`, `updatedAt`
-* `sellerUid`
-
----
-
-## ⚠️ Importante: Índices do Firestore (Collection Group)
-
-Para o consumidor listar produtos com filtros/ordenação, o Firestore pode exigir **índices compostos**.
-
-Se aparecer:
-
-> `The query requires an index`
-
-Crie índices para `collectionGroup: produtos` com:
-
-* `ativo == true` + `orderBy updatedAt desc`
-* `ativo == true` + `orderBy vendasMes desc`
-
-> Dica: o próprio erro do console normalmente já traz o link direto para criar o índice.
-
----
-
-## 🖼️ Imagens sem Firebase Storage (Assets)
-
-O projeto utiliza imagens locais em `assets/images/`, evitando custos com Firebase Storage.
-
-Exemplos:
-
-* `assets/images/aipim.jpg`
-* `assets/images/cebola.jpg`
-* `assets/images/cenoura.jpg`
-* `assets/images/maca.jpg`
+**Segurança:** Regras rigorosas (`rules_version = '2'`) aplicadas no Firestore impedem que consumidores acessem dados financeiros dos vendedores, permitindo apenas a leitura dos produtos ativos e gravação no momento do checkout.
 
 ---
 
 ## 🛠 Tecnologias Utilizadas
 
-* **Linguagem:** [Dart](https://dart.dev/)
-* **Framework:** [Flutter](https://flutter.dev/) (3.x)
-* **Backend:** Firebase
+* **Framework Mobile:** [Flutter](https://flutter.dev/) (Dart)
+* **BaaS (Backend as a Service):** Firebase (Auth e Firestore)
+* **Armazenamento de Imagens:** Cloudinary API
+* **Geolocalização:** Google Maps SDK (`Maps_flutter`) e `geolocator`
+* **ERP Web:** Appsmith
+* **Outros Pacotes Relevantes:**
+* `share_plus` (Exportação CSV)
+* `provider` (Gerenciamento de estado do Carrinho)
+* `qr_flutter` (Geração de QR Code PIX)
 
-  * `firebase_auth`: autenticação
-  * `cloud_firestore`: banco de dados
-* **Pacotes:**
 
-  * `intl`: formatação de moeda e datas
 
 ---
 
@@ -120,84 +84,60 @@ Exemplos:
 
 ### Pré-requisitos
 
-* Flutter SDK instalado
-* Android Studio ou VS Code configurado
-* Emulador Android ou dispositivo físico
+* Flutter SDK (3.x) instalado.
+* Chave de API do Google Maps (Necessária no `AndroidManifest.xml`).
+* Conta no Cloudinary e Firebase.
 
 ### Passo a Passo
 
 1. **Clone o repositório**
-
 ```bash
-git clone https://github.com/SEU-USUARIO/HortApp.git
-cd HortApp
+git clone [https://github.com/SEU-USUARIO/AgroApp.git](https://github.com/SEU-USUARIO/AgroApp.git)
+cd AgroApp
+
 ```
+
 
 2. **Instale as dependências**
-
 ```bash
 flutter pub get
+
 ```
 
-3. **Configure os Assets**
-   Garanta que `pubspec.yaml` contém:
 
-```yaml
-flutter:
-  assets:
-    - assets/images/
-```
+3. **Configure as Chaves e Serviços**
+* Adicione o seu ficheiro `google-services.json` em `android/app/`.
+* Insira a sua API Key do Google Maps na tag `<meta-data>` dentro de `android/app/src/main/AndroidManifest.xml`.
+* Configure as suas credenciais do Cloudinary no serviço de imagens.
 
-E que a pasta `assets/images` possui:
 
-* `logo.png`
-* `ifs.png`
-* `aipim.jpg`
-* `cebola.jpg`
-* `cenoura.jpg`
-* `maca.jpg`
-
-4. **Configure o Firebase**
-
-* Crie um projeto no Firebase Console
-* Adicione o app Android com o `applicationId` do seu projeto
-* Baixe `google-services.json` e coloque em:
-
-  * `android/app/google-services.json`
-
-5. **Execute**
-
+4. **Execute em modo Debug**
 ```bash
 flutter run
+
 ```
+
+
+5. **Gere o APK para Produção**
+```bash
+flutter build apk --release
+
+```
+
+
 
 ---
 
-## 📂 Estrutura de Pastas (Sugestão)
-
-```text
-lib/
-├── main.dart           # ponto de entrada e app completo (atual)
-├── models/             # (refatoração futura) Produto, Venda, AppUserProfile
-├── services/           # (refatoração futura) Firestore/Auth/Purchase services
-└── screens/            # (refatoração futura) telas separadas
-assets/
-└── images/
-```
-
-
-
-## 🗺️ Roadmap
+## 🗺️ Roadmap (Concluído ✅)
 
 * [x] Conectar com banco real (Firebase Auth + Firestore)
-* [x] Fluxo de compra do Consumidor
-* [x] Troca de foto de perfil via assets
-* [x] Excluir produto
-* [ ] Regras do Firestore mais restritas e seguras para compra
-* [ ] Aba “Minhas compras” (histórico do consumidor)
-* [ ] Filtros e pesquisa no Mercado
-* [ ] Upload real de imagens (opcional) — câmera/galeria (Storage/alternativas)
-* [ ] Desenvolver um ERP para gerenciar os usuários e produtos
+* [x] Fluxo completo de compra do Consumidor (Carrinho e Checkout)
+* [x] Upload real de imagens integrando Cloudinary
+* [x] Filtros e pesquisa avançada no Mercado
+* [x] Integração com Google Maps para georreferenciação
+* [x] Exportação de relatórios (CSV) e LGPD
+* [x] Regras de Segurança do Firestore aplicadas
+* [x] Desenvolver um ERP para gerenciar usuários e produtos (Appsmith)
 
 ---
 
@@ -206,4 +146,4 @@ assets/
 * **João Pedro Santana Silva Santos**
 * **Luiz Eduardo Andrade de Oliveira**
 
-
+> Projeto Integrador II
